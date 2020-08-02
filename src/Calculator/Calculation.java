@@ -1,9 +1,10 @@
 package Calculator;
 
-
 class Calculation {
 
-    long factorial(long n) {
+    private Calculation(){}
+
+    public static long factorial(long n) {
         if (n <= 14 && n >= 0) {
             long result = 1;
             if (n == 1 || n == 0) {
@@ -15,39 +16,38 @@ class Calculation {
         return -1;
     }
 
-    double plus(double op1, double op2) {
+    public static double plus(double op1, double op2) {
         return op1 + op2;
     }
 
-    double minus(double op1, double op2) {
+    public static double minus(double op1, double op2) {
         return op1 - op2;
     }
 
-    double divide(double divisor1, double divisor2) {
-        if (divisor2 != 0) {
+    public static double divide(double first_divisor, double second_divisor) {
+        if (second_divisor != 0) {
             double res;
-            res = divisor1 / divisor2;
+            res = first_divisor / second_divisor;
             if (Double.toString(res).length() > 10) {
-                res = Double.parseDouble(Double.toString(res).substring(0, 11));
+                res = format(res);
             }
             return res;
         } else {
-
             return -1;
         }
     }
 
 
-    double multiply(double m1, double m2) {
+    public static double multiply(double m1, double m2) {
 
         double res = m1 * m2;
         if (Double.toString(res).length() > 10) {
-            res = Double.parseDouble(Double.toString(res).substring(0, 11));
+            res = format(res);
         }
         return res;
     }
 
-    double negateExact(double a) {
+    public static double negateExact(double a) {
 
         if (a <= 0) {
             return a;
@@ -56,11 +56,15 @@ class Calculation {
         }
     }
 
-    double percentage(double radicalNum, double percentNum) {
-
+    public static double percentage(double radicalNum, double percentNum) {
         if (percentNum >= 0) {
             return divide(multiply(radicalNum, percentNum), 100);
         }
         return -1;
     }
+
+    private static double format(double num){
+        return Double.parseDouble(Double.toString(num).substring(0, 11));
+    }
+
 }

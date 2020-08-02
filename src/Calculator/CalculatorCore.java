@@ -11,8 +11,7 @@ import static java.lang.Double.parseDouble;
 class CalculatorCore extends JPanel {
 
     private JTextField field = new JTextField(10);
-    private Function function = new Function();
-    private Calculation calculation = new Calculation();
+    private CalculatorEventListener calculatorEventListener = new CalculatorEventListener();
     private Color darkBackColor = new Color(50, 50, 80);
     private Color darkKeyColor = new Color(0, 110, 120);
     private Color darkNumColor = new Color(100, 110, 120);
@@ -42,12 +41,13 @@ class CalculatorCore extends JPanel {
     private final JButton plusOrMinus = new JButton("- / +");
     private final JButton percentage = new JButton("%");
     private final JButton sqrt = new JButton("sqrt");
-    private final JRadioButton selector1 = new JRadioButton("Dark Mode");
-    private final JRadioButton selector2 = new JRadioButton("Light Mode");
+    private final JRadioButton darkMode = new JRadioButton("Dark Mode");
+    private final JRadioButton lightMode = new JRadioButton("Light Mode");
     private final ButtonGroup group = new ButtonGroup();
 
     private double bufferNum;
     private int fieldLength = -5;
+
     private boolean plusIsPressed = false;
     private boolean minusIsPressed = false;
     private boolean divideIsPressed = false;
@@ -56,16 +56,22 @@ class CalculatorCore extends JPanel {
     private boolean percentIsPressed = false;
     private boolean sqrtIsPressed = false;
 
-    public JTextField getField() {
-        return field;
+
+    public static CalculatorCore getInstance() {
+        return CalculationCoreInstance.calculatorCore;
     }
 
-    void components() {
+    private CalculatorCore(){
+        field.setEditable(false);
+        addComponents();
+    }
+
+    private void addComponents() {
 
         setLayout(new FlowLayout());
         add(field);
         field.setHorizontalAlignment(0);
-        Mode();
+        changeMode();
         add(delete);
         add(b1);
         add(b2);
@@ -91,37 +97,37 @@ class CalculatorCore extends JPanel {
         delete.setBackground(Color.LIGHT_GRAY);
         clear.setBackground(Color.LIGHT_GRAY);
         modeSelect();
-        plus.addActionListener(function);
-        minus.addActionListener(function);
-        multiply.addActionListener(function);
-        equal.addActionListener(function);
-        divide.addActionListener(function);
-        fact.addActionListener(function);
-        clear.addActionListener(function);
-        delete.addActionListener(function);
-        point.addActionListener(function);
-        plusOrMinus.addActionListener(function);
-        percentage.addActionListener(function);
-        sqrt.addActionListener(function);
-        b0.addActionListener(function);
-        b1.addActionListener(function);
-        b2.addActionListener(function);
-        b3.addActionListener(function);
-        b4.addActionListener(function);
-        b5.addActionListener(function);
-        b6.addActionListener(function);
-        b7.addActionListener(function);
-        b8.addActionListener(function);
-        b9.addActionListener(function);
+        plus.addActionListener(calculatorEventListener);
+        minus.addActionListener(calculatorEventListener);
+        multiply.addActionListener(calculatorEventListener);
+        equal.addActionListener(calculatorEventListener);
+        divide.addActionListener(calculatorEventListener);
+        fact.addActionListener(calculatorEventListener);
+        clear.addActionListener(calculatorEventListener);
+        delete.addActionListener(calculatorEventListener);
+        point.addActionListener(calculatorEventListener);
+        plusOrMinus.addActionListener(calculatorEventListener);
+        percentage.addActionListener(calculatorEventListener);
+        sqrt.addActionListener(calculatorEventListener);
+        b0.addActionListener(calculatorEventListener);
+        b1.addActionListener(calculatorEventListener);
+        b2.addActionListener(calculatorEventListener);
+        b3.addActionListener(calculatorEventListener);
+        b4.addActionListener(calculatorEventListener);
+        b5.addActionListener(calculatorEventListener);
+        b6.addActionListener(calculatorEventListener);
+        b7.addActionListener(calculatorEventListener);
+        b8.addActionListener(calculatorEventListener);
+        b9.addActionListener(calculatorEventListener);
     }
 
-    private void Mode() {
-        if (!selector2.isSelected()) {
+    private void changeMode() {
+        if (!lightMode.isSelected()) {
             setBackground(darkBackColor);
-            selector1.setBackground(darkBackColor);
-            selector2.setBackground(darkBackColor);
-            selector1.setForeground(Color.white);
-            selector2.setForeground(Color.white);
+            darkMode.setBackground(darkBackColor);
+            lightMode.setBackground(darkBackColor);
+            darkMode.setForeground(Color.white);
+            lightMode.setForeground(Color.white);
             field.setBackground(Color.GRAY);
             field.setForeground(Color.ORANGE);
             plus.setBackground(darkKeyColor);
@@ -146,10 +152,10 @@ class CalculatorCore extends JPanel {
             b0.setBackground(darkNumColor);
         } else {
             setBackground(lightBackColor);
-            selector1.setBackground(lightBackColor);
-            selector2.setBackground(lightBackColor);
-            selector1.setForeground(Color.BLUE);
-            selector2.setForeground(Color.BLUE);
+            darkMode.setBackground(lightBackColor);
+            lightMode.setBackground(lightBackColor);
+            darkMode.setForeground(Color.BLUE);
+            lightMode.setForeground(Color.BLUE);
             field.setBackground(Color.WHITE);
             field.setForeground(Color.BLACK);
             plus.setBackground(lightKeyColor);
@@ -178,57 +184,45 @@ class CalculatorCore extends JPanel {
     }
 
     private void modeSelect() {
-        group.add(selector1);
-        group.add(selector2);
-        add(selector1);
-        add(selector2);
-        selector1.setSelected(true);
-        selector1.addActionListener(e -> {
-            if (selector1.isSelected()) {
-                Mode();
+        group.add(darkMode);
+        group.add(lightMode);
+        add(darkMode);
+        add(lightMode);
+        darkMode.setSelected(true);
+        darkMode.addActionListener(e -> {
+            if (darkMode.isSelected()) {
+                changeMode();
             }
         });
-        selector2.addActionListener(e -> {
-            if (!selector1.isSelected()) {
-                Mode();
+        lightMode.addActionListener(e -> {
+            if (!darkMode.isSelected()) {
+                changeMode();
             }
         });
     }
 
     private void deleteLastNumber() {
         if (field.getText().length() != 0) {
-            String num = field.getText().substring(0, field.getText().length() - 1);
-            field.setText(num);
+            String result = field.getText().substring(0, field.getText().length() - 1);
+            field.setText(result);
         }
     }
 
     private void resultCalculation() {
         if (plusIsPressed) {
-            bufferNum = calculation.plus(bufferNum, parseDouble(field.getText()));
-            if (bufferNum % 1 != 0) {
-                field.setText("" + bufferNum);
-            } else {
-                field.setText("" + round(bufferNum));
-            }
+            bufferNum = Calculation.plus(bufferNum, parseDouble(field.getText()));
+            setRelevantNumber();
             plusIsPressed = false;
         }
         if (minusIsPressed) {
-            bufferNum = calculation.minus(bufferNum, parseDouble(field.getText()));
-            if (bufferNum % 1 != 0) {
-                field.setText("" + bufferNum);
-            } else {
-                field.setText("" + round(bufferNum));
-            }
+            bufferNum = Calculation.minus(bufferNum, parseDouble(field.getText()));
+            setRelevantNumber();
             minusIsPressed = false;
         }
         if (divideIsPressed) {
-            bufferNum = calculation.divide(bufferNum, parseDouble(field.getText()));
+            bufferNum = Calculation.divide(bufferNum, parseDouble(field.getText()));
             if (bufferNum != -1) {
-                if (bufferNum % 1 != 0) {
-                    field.setText("" + bufferNum);
-                } else {
-                    field.setText("" + round(bufferNum));
-                }
+                setRelevantNumber();
             } else {
                 field.setText("ERROR");
                 bufferNum = 0;
@@ -237,45 +231,43 @@ class CalculatorCore extends JPanel {
             divideIsPressed = false;
         }
         if (multiplyIsPressed) {
-            bufferNum = calculation.multiply(bufferNum, parseDouble(field.getText()));
-            if (bufferNum % 1 != 0) {
-                field.setText("" + bufferNum);
-            } else {
-                field.setText("" + round(bufferNum));
-            }
+            bufferNum = Calculation.multiply(bufferNum, parseDouble(field.getText()));
+            setRelevantNumber();
             multiplyIsPressed = false;
         }
         if (percentIsPressed) {
-            bufferNum = calculation.percentage(bufferNum, parseDouble(field.getText()));
+            bufferNum = Calculation.percentage(bufferNum, parseDouble(field.getText()));
             if (bufferNum != -1) {
-                if (bufferNum % 1 != 0) {
-                    field.setText("" + bufferNum);
-                } else {
-                    field.setText("" + round(bufferNum));
-                }
+                setRelevantNumber();
             }
             percentIsPressed = false;
         }
         if (factIsPressed) {
-            if (calculation.factorial(Long.parseLong(field.getText())) == -1) {
+            if (Calculation.factorial(Long.parseLong(field.getText())) == -1) {
                 field.setText("ERROR");
             } else {
-                field.setText("" + calculation.factorial(Long.parseLong(field.getText())));
+                field.setText(Double.toString(Calculation.factorial(Long.parseLong(field.getText()))));
             }
             factIsPressed = false;
         }
         if (sqrtIsPressed) {
             bufferNum = Math.sqrt(parseDouble(field.getText()));
             if (bufferNum % 1 != 0) {
-                field.setText(("" + bufferNum).substring(0, 10));
+                field.setText(Double.toString(bufferNum).substring(0, 10));
             } else {
-                field.setText("" + round(bufferNum));
+                field.setText(Double.toString(round(bufferNum)));
             }
 
         }
         sqrtIsPressed = false;
+    }
 
-
+    private void setRelevantNumber(){
+        if (bufferNum % 1 != 0) {
+            field.setText(Double.toString(bufferNum));
+        } else {
+            field.setText(Double.toString(round(bufferNum)));
+        }
     }
 
     private void equality() {
@@ -297,74 +289,55 @@ class CalculatorCore extends JPanel {
         factIsPressed = false;
         bufferNum = 0;
         fieldLength = 0;
-        if (selector1.isSelected()) {
+        if (darkMode.isSelected()) {
             field.setBackground(Color.GRAY);
         } else {
             field.setBackground(Color.WHITE);
         }
-
         field.setText("");
     }
 
 
-    private class Function implements ActionListener {
+    private class CalculatorEventListener implements ActionListener {
+
+
+        private final int columns = field.getColumns();
+
+
+        private void calculate(String command){
+
+            if (field.getText() != null) {
+                if (minusIsPressed || plusIsPressed || divideIsPressed || multiplyIsPressed) {
+                    resultCalculation();
+                }
+                plusIsPressed = command.equalsIgnoreCase("plus");
+                minusIsPressed = command.equalsIgnoreCase("minus");
+                divideIsPressed = command.equalsIgnoreCase("divide");
+                multiplyIsPressed = command.equalsIgnoreCase("multiply");
+                bufferNum = parseDouble(field.getText());
+                field.setText("");
+            } else {
+                resultCalculation();
+                field.setText("");
+            }
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 if (e.getSource() == plus) {
-                    if (field.getText() != null) {
-                        if (minusIsPressed || plusIsPressed || divideIsPressed || multiplyIsPressed) {
-                            resultCalculation();
-                        }
-                        plusIsPressed = true;
-                        bufferNum = parseDouble(field.getText());
-                        field.setText("");
-                    } else {
-                        resultCalculation();
-                        field.setText("");
-                    }
+                    calculate("plus");
                 }
-                if (e.getSource() == minus) {
-                    if (field.getText() != null) {
-                        if (minusIsPressed || plusIsPressed || divideIsPressed || multiplyIsPressed) {
-                            resultCalculation();
-                        }
-                        minusIsPressed = true;
-                        bufferNum = parseDouble(field.getText());
-                        field.setText("");
-                    } else {
-                        resultCalculation();
-                        field.setText("");
-                    }
+                else if (e.getSource() == minus) {
+                    calculate("minus");
                 }
-                if (e.getSource() == multiply) {
-                    if (field.getText() != null) {
-                        if (minusIsPressed || plusIsPressed || divideIsPressed || multiplyIsPressed) {
-                            resultCalculation();
-                        }
-                        multiplyIsPressed = true;
-                        bufferNum = parseDouble(field.getText());
-                        field.setText("");
-                    } else {
-                        resultCalculation();
-                        field.setText("");
-                    }
+                else if (e.getSource() == multiply) {
+                    calculate("multiply");
                 }
-                if (e.getSource() == divide) {
-                    if (field.getText() != null) {
-                        if (minusIsPressed || plusIsPressed || divideIsPressed || multiplyIsPressed) {
-                            resultCalculation();
-                        }
-                        divideIsPressed = true;
-                        bufferNum = parseDouble(field.getText());
-                        field.setText("");
-                    } else {
-                        resultCalculation();
-                        field.setText("");
-                    }
+                else if (e.getSource() == divide) {
+                    calculate("divide");
                 }
-                if (e.getSource() == percentage) {
+                else if (e.getSource() == percentage) {
                     if (field.getText() != null) {
                         percentIsPressed = true;
                         bufferNum = parseDouble(field.getText());
@@ -374,76 +347,90 @@ class CalculatorCore extends JPanel {
                         field.setText("");
                     }
                 }
-                if (e.getSource() == equal) {
+
+                else if (e.getSource() == equal) {
                     equality();
                 }
-                if (e.getSource() == fact) {
+
+                else if (e.getSource() == fact) {
                     if (field.getText() != null) {
                         factIsPressed = true;
                         resultCalculation();
                     }
                 }
-                if (e.getSource() == sqrt) {
+
+                else if (e.getSource() == sqrt) {
                     if (field.getText() != null) {
                         sqrtIsPressed = true;
                         resultCalculation();
                     }
                 }
-                if (e.getSource() == clear) {
+
+                else if (e.getSource() == clear) {
                     cleanField();
                 }
-                if (e.getSource() == delete) {
+
+                else if (e.getSource() == delete) {
                     deleteLastNumber();
                 }
-                if (e.getSource() == point && fieldLength <= field.getColumns()) {
+                else if (e.getSource() == point && fieldLength <= columns) {
                     field.setText(field.getText() + ".");
                     fieldLength++;
                 }
-                if (e.getSource() == b1 && fieldLength <= field.getColumns()) {
+                else if (e.getSource() == b1 && fieldLength <= columns) {
                     field.setText(field.getText() + "1");
                     fieldLength++;
                 }
-                if (e.getSource() == b2 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b2 && fieldLength <= columns) {
                     field.setText(field.getText() + "2");
                     fieldLength++;
                 }
-                if (e.getSource() == b3 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b3 && fieldLength <= columns) {
                     field.setText(field.getText() + "3");
                     fieldLength++;
                 }
-                if (e.getSource() == b4 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b4 && fieldLength <= columns) {
                     field.setText(field.getText() + "4");
                     fieldLength++;
                 }
-                if (e.getSource() == b5 && fieldLength <= field.getColumns()) {
+                else if (e.getSource() == b5 && fieldLength <= columns) {
                     field.setText(field.getText() + "5");
                     fieldLength++;
                 }
-                if (e.getSource() == b6 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b6 && fieldLength <= columns) {
                     field.setText(field.getText() + "6");
                     fieldLength++;
                 }
-                if (e.getSource() == b7 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b7 && fieldLength <= columns) {
                     field.setText(field.getText() + "7");
                     fieldLength++;
                 }
-                if (e.getSource() == b8 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b8 && fieldLength <= columns) {
                     field.setText(field.getText() + "8");
                     fieldLength++;
                 }
-                if (e.getSource() == b9 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b9 && fieldLength <= columns) {
                     field.setText(field.getText() + "9");
                     fieldLength++;
                 }
-                if (e.getSource() == b0 && fieldLength <= field.getColumns()) {
+
+                else if (e.getSource() == b0 && fieldLength <= columns) {
                     field.setText(field.getText() + "0");
                     fieldLength++;
                 }
-                if (e.getSource() == plusOrMinus && parseDouble(field.getText()) > 0) {
+
+                else if (e.getSource() == plusOrMinus && parseDouble(field.getText()) > 0) {
                     if (parseDouble(field.getText()) % 1 == 0) {
                         field.setText(Integer.toString(Math.negateExact(Integer.parseInt(field.getText()))));
                     } else {
-                        field.setText(Double.toString(calculation.negateExact(parseDouble(field.getText()))));
+                        field.setText(Double.toString(Calculation.negateExact(parseDouble(field.getText()))));
                     }
                 }
 
@@ -451,5 +438,9 @@ class CalculatorCore extends JPanel {
                 JOptionPane.showMessageDialog(null, "Please enter number");
             }
         }
+    }
+
+    private static class CalculationCoreInstance{
+        static CalculatorCore calculatorCore = new CalculatorCore();
     }
 }

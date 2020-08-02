@@ -6,24 +6,22 @@ import javax.swing.*;
 import static java.awt.EventQueue.invokeLater;
 
 
-public class CalculatorStart extends JFrame {
+public class Main extends JFrame {
 
 
-    private CalculatorStart() {
-        CalculatorCore core = new CalculatorCore();
+    private Main() {
+        CalculatorCore core = CalculatorCore.getInstance();
         setVisible(true);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         setSize(180, 350);
         setLocationRelativeTo(null);
         setResizable(false);
-        core.components();
-        core.getField().setEditable(false);
         add(core);
 
     }
 
     public static void main(String[] args) {
-        invokeLater(CalculatorStart::new);
+        invokeLater(Main::new);
 
     }
 }
